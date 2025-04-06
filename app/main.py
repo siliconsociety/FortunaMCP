@@ -7,7 +7,7 @@ from pydantic import Field
 from mcp.server.fastmcp import FastMCP
 import Fortuna
 
-version = "0.0.1"
+version = "0.0.2"
 load_dotenv()
 mcp = FastMCP(
     "FortunaMCP",
