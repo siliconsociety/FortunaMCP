@@ -1,12 +1,19 @@
+import os
+
 from typing import Annotated, Literal
+
+from dotenv import load_dotenv
 from pydantic import Field
 from mcp.server.fastmcp import FastMCP
 import Fortuna
 
 version = "0.0.1"
+load_dotenv()
 mcp = FastMCP(
     "Fortuna MCP Server",
-    dependencies=["Fortuna"]
+    dependencies=["Fortuna"],
+    port=int(os.environ.get("PORT", "80")),
+    host="0.0.0.0",
 )
 
 
