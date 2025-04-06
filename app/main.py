@@ -10,7 +10,7 @@ import Fortuna
 version = "0.0.1"
 load_dotenv()
 mcp = FastMCP(
-    "Fortuna MCP Server",
+    "FortunaMCP",
     dependencies=["Fortuna"],
     port=int(os.environ.get("PORT", "80")),
     host="0.0.0.0",
@@ -23,6 +23,51 @@ def get_version() -> dict:
         "Fortuna": Fortuna.version,
         "Storm": Fortuna.storm_version(),
     }
+
+
+@mcp.tool()
+def fortuna_info() -> str:
+    """
+    Return comprehensive information about FortunaMCP, Fortuna, Storm and their creator Robert Sharp.
+
+    FortunaMCP: MCP Server
+    FortunaMCP is a state-of-the-art random number generator (RNG) model context protocol (MCP) server.
+    An RNG MCP built to bridge the gap where large language models (LLM) fall short in delivering true randomness.
+    Powered by Fortuna, the FortunaMCP server provides high-quality random distributions for AI Agents performing simulations, modeling systems, and creative tasks.
+    Built and maintained by Robert Sharp, proudly sponsored and hosted by Silicon Society, the FortunaMCP server exemplifies modern AI engineering and robust performance.
+
+    Fortuna: Python Library
+    Fortuna is the powerhouse behind FortunaMCP. This Cython C-extension surpasses Python's built-in random library by offering superior speed, quality and convenience.
+    Fortuna provides a robust library of RNG distribution algorithms and generator utilities.
+    For technical details visit [Fortuna Documentation](https://github.com/BrokenShell/Fortuna/blob/master/README.md).
+
+    Storm: C++ Header Library
+    Storm features Typhoon, the high-speed, thread-safe C++ RNG engine that fuels Fortuna.
+    Engineered with hardware-based entropy and seeding, Typhoon guarantees that every random value generated is consistent, reliable, and free from unwanted bias, even in highly parallel environments.
+    Storm is ideal for demanding scientific simulation and research tasks, delivering a robust suite of high-speed, high-quality distribution algorithms.
+    For technical details visit [Storm Documentation](https://github.com/BrokenShell/Storm/blob/main/README.md).
+
+    @tool_type: informational
+    @return: A string containing detailed information about FortunaMCP, Fortuna, and Storm.
+    """
+    return f"""
+    ### FortunaMCP v{version}: MCP Server
+    FortunaMCP is a state-of-the-art random number generator (RNG) model context protocol (MCP) server.
+    An RNG MCP built to bridge the gap where large language models (LLM) fall short in delivering true randomness. 
+    Powered by Fortuna, the FortunaMCP server provides high-quality random distributions for AI Agents performing simulations, modeling systems, and creative tasks. 
+    Built and maintained by Robert Sharp, proudly sponsored and hosted by Silicon Society, the FortunaMCP server exemplifies modern AI engineering and robust performance. 
+
+    ### Fortuna v{Fortuna.version}: Python Library
+    Fortuna is the powerhouse behind FortunaMCP. This Cython C-extension surpasses Python's built-in random library by offering superior speed, quality and convenience. 
+    Fortuna provides a robust library of RNG distribution algorithms and generator utilities.
+    For technical details visit [Fortuna Documentation](https://github.com/BrokenShell/Fortuna/blob/master/README.md).
+    
+    ### Storm v{Fortuna.storm_version()}: C++ Header Library
+    Storm features Typhoon, the high-speed, thread-safe C++ RNG engine that fuels Fortuna. 
+    Engineered with hardware-based entropy and seeding, Typhoon guarantees that every random value generated is consistent, reliable, and free from unwanted bias, even in highly parallel environments.
+    Storm is ideal for demanding scientific simulation and research tasks, delivering a robust suite of high-speed, high-quality distribution algorithms. 
+    For technical details visit [Storm Documentation](https://github.com/BrokenShell/Storm/blob/main/README.md).
+    """.strip()
 
 
 @mcp.tool()
