@@ -1,0 +1,8 @@
+uvicorn[standard]
+Fortuna
+mcp[cli]
+uv
+pydantic
+openai
+openai-agents
+python-dotenv

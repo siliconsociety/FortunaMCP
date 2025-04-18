@@ -6,10 +6,13 @@ Large language models excel at natural language processing but rely on determini
 
 FortunaMCP is perfectly suited for tasks like Monte Carlo simulations, complex system modeling and analysis, and interactive game mechanics. It is not intended for blockchain, security or encryption oriented tasks.
 
-## Credits
+### Credits
 
 - **Developer:** Robert Sharp – the visionary creator and maintainer of Fortuna, Storm, and FortunaMCP server.
-- **Host:** Silicon Society – proudly hosting the FortunaMCP server and supporting its mission of delivering world-class random value generation for AI Agents.
+- **Host:** Silicon Society – proudly hosting the FortunaMCP server and supporting its mission of delivering world-class random value generation for AI Agents. Silicon Society is building the future of learning, at scale. AI-powered job shadowing that brings learning to where work happens. Follow professionals in action with personalized guidance that adapts to your goals. Sign up for the [waitlist](https://docs.google.com/forms/d/e/1FAIpQLSdMjNkgbOpo-iG53cscOfBqu6CD2G-1J9ukkxYGkVL-7T1tPg/viewform?usp=header).
+
+### Reference Deployment
+- FortunaMCP https://fortuna-mcp.siliconsociety.org/sse
 
 ## Tools Overview
 
@@ -166,18 +169,3 @@ FortunaMCP is perfectly suited for tasks like Monte Carlo simulations, complex s
 - **Example:**
   - **Trigger:** "Generate a Student’s t variate with 10 degrees of freedom"
   - **Call:** `Fortuna.student_t_variate(degrees_of_freedom=10.0)`
-
-
-## Getting Started
-
-### Requirements
-
-### Installation
-
-### Usage
-
-
-## License
-
-
-## Contact
