@@ -3,6 +3,7 @@ Fortuna
 mcp[cli]
 uv
 FastAPI
+pydantic
 openai
 openai-agents
 python-dotenv

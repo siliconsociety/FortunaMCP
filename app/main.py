@@ -7,7 +7,7 @@ from pydantic import Field
 from mcp.server.fastmcp import FastMCP
 import Fortuna
 
-version = "0.0.2"
+version = "0.0.3"
 load_dotenv()
 mcp = FastMCP(
     "FortunaMCP",
@@ -16,13 +16,14 @@ mcp = FastMCP(
     host="0.0.0.0",
 )
 
+Integer = Annotated[int, Field(ge=Fortuna.min_int(), le=Fortuna.max_int())]
+PositiveInteger = Annotated[int, Field(ge=1, le=Fortuna.max_int())]
+Polyhedron = Literal[2, 4, 6, 8, 10, 12, 20, 30, 100]
+SampleSize = Annotated[int, Field(ge=1, le=100)]
 
-def get_version() -> dict:
-    return {
-        "FortunaMCP": version,
-        "Fortuna": Fortuna.version,
-        "Storm": Fortuna.storm_version(),
-    }
+Float = Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())]
+CanonicalFloat = Annotated[float, Field(ge=0, le=1)]
+PositiveFloat = Annotated[float, Field(gt=0, le=Fortuna.max_float())]
 
 
 @mcp.tool()
@@ -51,30 +52,27 @@ def fortuna_info() -> str:
     @return: A string containing detailed information about FortunaMCP, Fortuna, and Storm.
     """
     return f"""
-    ### FortunaMCP v{version}: MCP Server
-    FortunaMCP is a state-of-the-art random number generator (RNG) model context protocol (MCP) server.
-    An RNG MCP built to bridge the gap where large language models (LLM) fall short in delivering true randomness. 
-    Powered by Fortuna, the FortunaMCP server provides high-quality random distributions for AI Agents performing simulations, modeling systems, and creative tasks. 
-    Built and maintained by Robert Sharp, proudly sponsored and hosted by Silicon Society, the FortunaMCP server exemplifies modern AI engineering and robust performance. 
+### FortunaMCP v{version}: MCP Server
+FortunaMCP is a state-of-the-art random number generator (RNG) model context protocol (MCP) server.
+An RNG MCP built to bridge the gap where large language models (LLM) fall short in delivering true randomness. 
+Powered by Fortuna, the FortunaMCP server provides high-quality random distributions for AI Agents performing simulations, modeling systems, and creative tasks. 
+Built and maintained by Robert Sharp, proudly sponsored and hosted by Silicon Society, the FortunaMCP server exemplifies modern AI engineering and robust performance. 
 
-    ### Fortuna v{Fortuna.version}: Python Library
-    Fortuna is the powerhouse behind FortunaMCP. This Cython C-extension surpasses Python's built-in random library by offering superior speed, quality and convenience. 
-    Fortuna provides a robust library of RNG distribution algorithms and generator utilities.
-    For technical details visit [Fortuna Documentation](https://github.com/BrokenShell/Fortuna/blob/master/README.md).
-    
-    ### Storm v{Fortuna.storm_version()}: C++ Header Library
-    Storm features Typhoon, the high-speed, thread-safe C++ RNG engine that fuels Fortuna. 
-    Engineered with hardware-based entropy and seeding, Typhoon guarantees that every random value generated is consistent, reliable, and free from unwanted bias, even in highly parallel environments.
-    Storm is ideal for demanding scientific simulation and research tasks, delivering a robust suite of high-speed, high-quality distribution algorithms. 
-    For technical details visit [Storm Documentation](https://github.com/BrokenShell/Storm/blob/main/README.md).
-    """.strip()
+### Fortuna v{Fortuna.version}: Python Library
+Fortuna is the powerhouse behind FortunaMCP. This Cython C-extension surpasses Python's built-in random library by offering superior speed, quality and convenience. 
+Fortuna provides a robust library of RNG distribution algorithms and generator utilities.
+For technical details visit [Fortuna Documentation](https://github.com/BrokenShell/Fortuna/blob/master/README.md).
+
+### Storm v{Fortuna.storm_version()}: C++ Header Library
+Storm features Typhoon, the high-speed, thread-safe C++ RNG engine that fuels Fortuna. 
+Engineered with hardware-based entropy and seeding, Typhoon guarantees that every random value generated is consistent, reliable, and free from unwanted bias, even in highly parallel environments.
+Storm is ideal for demanding scientific simulation and research tasks, delivering a robust suite of high-speed, high-quality distribution algorithms. 
+For technical details visit [Storm Documentation](https://github.com/BrokenShell/Storm/blob/main/README.md).
+""".strip()
 
 
 @mcp.tool()
-def dice(
-    rolls: Annotated[int, Field(ge=1, le=100)],
-    sides: Literal[2, 4, 6, 8, 10, 12, 20, 30, 100],
-) -> int:
+def dice(rolls: SampleSize, sides: Polyhedron) -> int:
     """
     Roll a specified number of dice and return their summed total.
 
@@ -90,11 +88,7 @@ def dice(
 
 
 @mcp.tool()
-def random_range(
-    start: Annotated[int, Field(ge=Fortuna.min_int(), le=Fortuna.max_int())],
-    stop: Annotated[int, Field(ge=Fortuna.min_int(), le=Fortuna.max_int())],
-    step: Annotated[int, Field(ge=Fortuna.min_int(), le=Fortuna.max_int())],
-) -> int:
+def random_range(start: Integer, stop: Integer, step: Integer) -> int:
     """
     Return a random integer selected from a sequence defined by a range.
 
@@ -112,7 +106,7 @@ def random_range(
 
 
 @mcp.tool()
-def bernoulli_variate(ratio_of_truth: Annotated[float, Field(ge=0, le=1)]) -> bool:
+def bernoulli_variate(ratio_of_truth: CanonicalFloat) -> bool:
     """
     Perform a Bernoulli trial returning a boolean outcome.
 
@@ -126,17 +120,14 @@ def bernoulli_variate(ratio_of_truth: Annotated[float, Field(ge=0, le=1)]) -> bo
 
 
 @mcp.tool()
-def binomial_variate(
-    number_of_trials: Annotated[int, Field(ge=0, le=Fortuna.max_int())],
-    probability: Annotated[float, Field(ge=0, le=1)],
-) -> int:
+def binomial_variate(number_of_trials: PositiveInteger, probability: CanonicalFloat) -> int:
     """
     Generate a random count of successes in a fixed number of Bernoulli trials.
 
     Models a binomial distribution where each trial has a success probability given by 'probability'.
-    'number_of_trials' must be between 0 and 9223372036854775807, and 'probability' must be in [0, 1].
+    'number_of_trials' must be between 1 and 9223372036854775807, and 'probability' must be in [0, 1].
 
-    @param number_of_trials: Total number of trials (0 <= number_of_trials <= 9223372036854775807).
+    @param number_of_trials: Total number of trials (1 <= number_of_trials <= 9223372036854775807).
     @param probability: Success probability per trial (0 <= probability <= 1).
     @return: Number of successes achieved.
     """
@@ -145,8 +136,8 @@ def binomial_variate(
 
 @mcp.tool()
 def negative_binomial_variate(
-    number_of_trials: Annotated[int, Field(ge=1, le=Fortuna.max_int())],
-    probability: Annotated[float, Field(ge=0, le=1)],
+    number_of_trials: PositiveInteger,
+    probability: CanonicalFloat,
 ) -> int:
     """
     Calculate the number of failures before achieving a target number of successes.
@@ -176,7 +167,7 @@ def geometric_variate(probability: Annotated[float, Field(gt=0, le=1)]) -> int:
 
 
 @mcp.tool()
-def poisson_variate(mean: Annotated[float, Field(gt=0, le=Fortuna.max_float())]) -> int:
+def poisson_variate(mean: PositiveFloat) -> int:
     """
     Generate a random integer from a Poisson distribution.
 
@@ -190,10 +181,7 @@ def poisson_variate(mean: Annotated[float, Field(gt=0, le=Fortuna.max_float())])
 
 
 @mcp.tool()
-def random_float(
-    lower_limit: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-    upper_bound: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-) -> float:
+def random_float(lower_limit: Float, upper_bound: Float) -> float:
     """
     Produce a random float uniformly distributed within a specified interval.
 
@@ -209,11 +197,7 @@ def random_float(
 
 
 @mcp.tool()
-def triangular(
-    lower_limit: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-    upper_limit: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-    mode: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-) -> float:
+def triangular(lower_limit: Float, upper_limit: Float, mode: Float) -> float:
     """
     Generate a random float from a triangular distribution.
 
@@ -230,10 +214,7 @@ def triangular(
 
 
 @mcp.tool()
-def beta_variate(
-    alpha: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-    beta: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def beta_variate(alpha: PositiveFloat, beta: PositiveFloat) -> float:
     """
     Generate a random float from a beta distribution on the interval [0, 1].
 
@@ -248,9 +229,7 @@ def beta_variate(
 
 
 @mcp.tool()
-def pareto_variate(
-    alpha: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def pareto_variate(alpha: PositiveFloat) -> float:
     """
     Generate a random float from a Pareto distribution.
 
@@ -266,7 +245,7 @@ def pareto_variate(
 
 @mcp.tool()
 def vonmises_variate(
-    mu: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
+    mu: Float,
     kappa: Annotated[float, Field(ge=0, le=Fortuna.max_float())],
 ) -> float:
     """
@@ -284,9 +263,7 @@ def vonmises_variate(
 
 
 @mcp.tool()
-def exponential_variate(
-    lambda_rate: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def exponential_variate(lambda_rate: PositiveFloat) -> float:
     """
     Generate a random float from an exponential distribution.
 
@@ -300,10 +277,7 @@ def exponential_variate(
 
 
 @mcp.tool()
-def gamma_variate(
-    shape: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-    scale: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def gamma_variate(shape: PositiveFloat, scale: PositiveFloat) -> float:
     """
     Generate a random float from a gamma distribution.
 
@@ -318,10 +292,7 @@ def gamma_variate(
 
 
 @mcp.tool()
-def weibull_variate(
-    shape: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-    scale: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def weibull_variate(shape: PositiveFloat, scale: PositiveFloat) -> float:
     """
     Generate a random float from a Weibull distribution.
 
@@ -337,10 +308,7 @@ def weibull_variate(
 
 
 @mcp.tool()
-def normal_variate(
-    mean: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-    std_dev: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def normal_variate(mean: Float, std_dev: PositiveFloat) -> float:
     """
     Generate a random float from a normal (Gaussian) distribution.
 
@@ -356,10 +324,7 @@ def normal_variate(
 
 
 @mcp.tool()
-def log_normal_variate(
-    log_mean: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-    log_deviation: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def log_normal_variate(log_mean: Float, log_deviation: PositiveFloat) -> float:
     """
     Generate a random float from a log-normal distribution.
 
@@ -376,10 +341,7 @@ def log_normal_variate(
 
 
 @mcp.tool()
-def extreme_value_variate(
-    location: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-    scale: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def extreme_value_variate(location: Float, scale: PositiveFloat) -> float:
     """
     Generate a random float from an extreme value (Gumbel) distribution.
 
@@ -396,9 +358,7 @@ def extreme_value_variate(
 
 
 @mcp.tool()
-def chi_squared_variate(
-    degrees_of_freedom: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def chi_squared_variate(degrees_of_freedom: PositiveFloat) -> float:
     """
     Generate a random float from a chi-squared distribution.
 
@@ -412,10 +372,7 @@ def chi_squared_variate(
 
 
 @mcp.tool()
-def cauchy_variate(
-    location: Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())],
-    scale: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def cauchy_variate(location: Float, scale: PositiveFloat) -> float:
     """
     Generate a random float from a Cauchy distribution.
 
@@ -431,10 +388,7 @@ def cauchy_variate(
 
 
 @mcp.tool()
-def fisher_f_variate(
-    degrees_of_freedom_1: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-    degrees_of_freedom_2: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def fisher_f_variate(degrees_of_freedom_1: PositiveFloat, degrees_of_freedom_2: PositiveFloat) -> float:
     """
     Generate a random float from a Fisher F distribution.
 
@@ -449,9 +403,7 @@ def fisher_f_variate(
 
 
 @mcp.tool()
-def student_t_variate(
-    degrees_of_freedom: Annotated[float, Field(gt=0, le=Fortuna.max_float())],
-) -> float:
+def student_t_variate(degrees_of_freedom: PositiveFloat) -> float:
     """
     Generate a random float from a Student’s t-distribution.
 
@@ -465,5 +417,5 @@ def student_t_variate(
 
 
 if __name__ == "__main__":
-    print(f"Starting Fortuna MCP Server: {get_version()}")
+    print(f"Starting Fortuna MCP Server {version}")
     mcp.run(transport="sse")
