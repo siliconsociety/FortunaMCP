@@ -14,10 +14,6 @@ FortunaMCP is perfectly suited for tasks like Monte Carlo simulations, complex s
 ### Reference Deployment
 - FortunaMCP https://fortuna-mcp.siliconsociety.org/sse
 
-<a href="https://glama.ai/mcp/servers/@siliconsociety/FortunaMCP">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/@siliconsociety/FortunaMCP/badge" />
-</a>
-
 ## Tools Overview
 
 ### Dice
