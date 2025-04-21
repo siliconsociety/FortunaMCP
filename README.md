@@ -9,7 +9,7 @@ FortunaMCP is perfectly suited for tasks like Monte Carlo simulations, complex s
 ### Credits
 
 - **Developer:** Robert Sharp – creator and maintainer of Fortuna, Storm, and FortunaMCP server.
-- **Host:** Silicon Society – proudly hosting the FortunaMCP server and supporting its mission of delivering world-class random value generation for AI Agents. Silicon Society is building the future of learning, at scale. AI-powered job shadowing that brings learning to where work happens. Follow professionals in action with personalized guidance that adapts to your goals. Sign up for the [waitlist](https://docs.google.com/forms/d/e/1FAIpQLSdMjNkgbOpo-iG53cscOfBqu6CD2G-1J9ukkxYGkVL-7T1tPg/viewform?usp=header).
+- **Host:** [Silicon Society](https://siliconsociety.org) – proudly hosting the FortunaMCP server and supporting its mission of delivering world-class random value generation for AI Agents. Silicon Society is building the future of learning, at scale. AI-powered job shadowing that brings learning to where work happens. Follow professionals in action with personalized guidance that adapts to your goals. Sign up for the [waitlist](https://docs.google.com/forms/d/e/1FAIpQLSdMjNkgbOpo-iG53cscOfBqu6CD2G-1J9ukkxYGkVL-7T1tPg/viewform?usp=header).
 
 ### Reference Deployment
 - FortunaMCP https://fortuna-mcp.siliconsociety.org/sse
