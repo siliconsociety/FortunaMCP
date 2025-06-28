@@ -1,7 +1,5 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/siliconsociety-fortunamcp-badge.png)](https://mseep.ai/app/siliconsociety-fortunamcp)
-
-[![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/72dda374-2f5b-4be8-9f81-33b9b8e6e0ff)
 # FortunaMCP Server
+[![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/72dda374-2f5b-4be8-9f81-33b9b8e6e0ff)
 
 FortunaMCP is an advanced MCP server dedicated to generating high-quality random values. It leverages the Fortuna C-extension, which is directly powered by Storm—a robust, thread-safe C++ RNG engine optimized for high-speed, hardware-based entropy. FortunaMCP provides dependable randomness for a wide range of AI applications.
 
