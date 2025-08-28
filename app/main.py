@@ -1,12 +1,17 @@
 import os
+from pathlib import Path
+
+import markdown
 
 from typing import Annotated, Literal, TypeAlias
 
+import Fortuna
 from pydantic import Field
 from mcp.server.fastmcp import FastMCP
-import Fortuna
+from fastapi.responses import HTMLResponse, FileResponse
+from starlette.routing import Route
 
-version = "0.0.5"
+version = "0.1.0"
 mcp = FastMCP(
     "FortunaMCP",
     dependencies=["Fortuna"],
@@ -166,7 +171,8 @@ def binomial_variate(number_of_trials: PositiveInteger, probability: CanonicalFl
 
 
 @mcp.tool()
-def negative_binomial_variate(number_of_trials: PositiveInteger, probability: CanonicalFloat) -> int:
+def negative_binomial_variate(number_of_trials: PositiveInteger,
+                              probability: CanonicalFloat) -> int:
     """
     Calculate the number of failures before achieving a target number of successes.
 
@@ -383,7 +389,8 @@ def cauchy_variate(location: Float, scale: PositiveFloat) -> float:
 
 
 @mcp.tool()
-def fisher_f_variate(degrees_of_freedom_1: PositiveFloat, degrees_of_freedom_2: PositiveFloat) -> float:
+def fisher_f_variate(degrees_of_freedom_1: PositiveFloat,
+                     degrees_of_freedom_2: PositiveFloat) -> float:
     """
     Generate a random float from a Fisher F distribution.
 
@@ -411,6 +418,84 @@ def student_t_variate(degrees_of_freedom: PositiveFloat) -> float:
     return Fortuna.student_t_variate(degrees_of_freedom)
 
 
+async def root(request):
+    """Serve the README as HTML at the root path"""
+    readme = Path("README.md").read_text()
+    html_content = markdown.markdown(readme)
+    html_response = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FortunaMCP Server</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+        main {{
+            background: white;
+            padding: 20px 30px 40px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+        h1 {{ margin-top: 0; }}
+        h1, h2, h3 {{ color: #2c3e50; }}
+        h3 {{ margin-bottom: 0; }}
+        ul {{ margin-top: 0; }}
+        code {{
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }}
+        pre {{
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }}
+        a {{ color: #3498db; text-decoration: none; }}
+        a:hover {{ text-decoration: underline; }}
+        .badge {{
+            display: inline-block;
+            margin-bottom: 20px;
+        }}
+    </style>
+</head>
+<body>
+    <main>
+        {html_content}
+    </main>
+</body>
+</html>
+""".strip()
+    return HTMLResponse(content=html_response)
+
+
+async def favicon(request):
+    return FileResponse("static/favicon.ico")
+
+
 if __name__ == "__main__":
     print(f"Starting Fortuna MCP Server {version}")
+    _sse_app = mcp.sse_app
+
+
+    def sse_app():
+        app = _sse_app()
+        root_route = Route("/", root, methods=["GET"])
+        favicon_route = Route("/favicon.ico", favicon, methods=["GET"])
+        app.router.routes.insert(0, root_route)
+        app.router.routes.insert(1, favicon_route)
+        return app
+
+
+    mcp.sse_app = sse_app
     mcp.run(transport="sse")
