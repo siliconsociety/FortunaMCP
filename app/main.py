@@ -1,12 +1,12 @@
 import os
 
-from typing import Annotated, Literal
+from typing import Annotated, Literal, TypeAlias
 
 from pydantic import Field
 from mcp.server.fastmcp import FastMCP
 import Fortuna
 
-version = "0.0.4"
+version = "0.0.5"
 mcp = FastMCP(
     "FortunaMCP",
     dependencies=["Fortuna"],
@@ -14,14 +14,14 @@ mcp = FastMCP(
     host="0.0.0.0",
 )
 
-Integer = Annotated[int, Field(ge=Fortuna.min_int(), le=Fortuna.max_int())]
-PositiveInteger = Annotated[int, Field(ge=1, le=Fortuna.max_int())]
-Polyhedron = Literal[2, 4, 6, 8, 10, 12, 20, 30, 100]
-SampleSize = Annotated[int, Field(ge=1, le=100)]
+Integer: TypeAlias = Annotated[int, Field(ge=Fortuna.min_int(), le=Fortuna.max_int())]
+PositiveInteger: TypeAlias = Annotated[int, Field(ge=1, le=Fortuna.max_int())]
+Polyhedron: TypeAlias = Literal[2, 4, 6, 8, 10, 12, 20, 30, 100]
+SampleSize: TypeAlias = Annotated[int, Field(ge=1, le=100)]
 
-Float = Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())]
-CanonicalFloat = Annotated[float, Field(ge=0, le=1)]
-PositiveFloat = Annotated[float, Field(gt=0, le=Fortuna.max_float())]
+Float: TypeAlias = Annotated[float, Field(ge=Fortuna.min_float(), le=Fortuna.max_float())]
+CanonicalFloat: TypeAlias = Annotated[float, Field(ge=0, le=1)]
+PositiveFloat: TypeAlias = Annotated[float, Field(gt=0, le=Fortuna.max_float())]
 
 
 @mcp.tool()
@@ -52,19 +52,19 @@ def fortuna_info() -> str:
     return f"""
 ### FortunaMCP v{version}: MCP Server
 FortunaMCP is a state-of-the-art random number generator (RNG) model context protocol (MCP) server.
-An RNG MCP built to bridge the gap where large language models (LLM) fall short in delivering true randomness. 
-Powered by Fortuna, the FortunaMCP server provides high-quality random distributions for AI Agents performing simulations, modeling systems, and creative tasks. 
-Built and maintained by Robert Sharp, proudly sponsored and hosted by Silicon Society, the FortunaMCP server exemplifies modern AI engineering and robust performance. 
+An RNG MCP built to bridge the gap where large language models (LLM) fall short in delivering true randomness.
+Powered by Fortuna, the FortunaMCP server provides high-quality random distributions for AI Agents performing simulations, modeling systems, and creative tasks.
+Built and maintained by Robert Sharp, proudly sponsored and hosted by Silicon Society, the FortunaMCP server exemplifies modern AI engineering and robust performance.
 
 ### Fortuna v{Fortuna.version}: Python Library
-Fortuna is the powerhouse behind FortunaMCP. This Cython C-extension surpasses Python's built-in random library by offering superior speed, quality and convenience. 
+Fortuna is the powerhouse behind FortunaMCP. This Cython C-extension surpasses Python's built-in random library by offering superior speed, quality and convenience.
 Fortuna provides a robust library of RNG distribution algorithms and generator utilities.
 For technical details visit [Fortuna Documentation](https://github.com/BrokenShell/Fortuna/blob/master/README.md).
 
 ### Storm v{Fortuna.storm_version()}: C++ Header Library
-Storm features Typhoon, the high-speed, thread-safe C++ RNG engine that fuels Fortuna. 
+Storm features Typhoon, the high-speed, thread-safe C++ RNG engine that fuels Fortuna.
 Engineered with hardware-based entropy and seeding, Typhoon guarantees that every random value generated is consistent, reliable, and free from unwanted bias, even in highly parallel environments.
-Storm is ideal for demanding scientific simulation and research tasks, delivering a robust suite of high-speed, high-quality distribution algorithms. 
+Storm is ideal for demanding scientific simulation and research tasks, delivering a robust suite of high-speed, high-quality distribution algorithms.
 For technical details visit [Storm Documentation](https://github.com/BrokenShell/Storm/blob/main/README.md).
 """.strip()
 
@@ -104,6 +104,39 @@ def random_range(start: Integer, stop: Integer, step: Integer) -> int:
 
 
 @mcp.tool()
+def random_float(lower_limit: Float, upper_bound: Float) -> float:
+    """
+    Produce a random float uniformly distributed within a specified interval.
+
+    Generates a random float in the half-open interval [lower_limit, upper_bound).
+    Both 'lower_limit' and 'upper_bound' must lie within the float bounds of
+    -1.7976931348623157e+308 to 1.7976931348623157e+308, and lower_limit must be strictly less than upper_bound.
+
+    @param lower_limit: Inclusive lower bound (-1.7976931348623157e+308 <= lower_limit < upper_bound).
+    @param upper_bound: Exclusive upper bound (lower_limit < upper_bound <= 1.7976931348623157e+308).
+    @return: A random float from the specified interval.
+    """
+    return Fortuna.random_float(lower_limit, upper_bound)
+
+
+@mcp.tool()
+def triangular(lower_limit: Float, upper_limit: Float, mode: Float) -> float:
+    """
+    Generate a random float from a triangular distribution.
+
+    The distribution is defined by a lower limit, an upper limit, and a mode.
+    All parameters must lie within the float bounds of -1.7976931348623157e+308 to 1.7976931348623157e+308,
+    and must satisfy lower_limit <= mode <= upper_limit.
+
+    @param lower_limit: Minimum possible value (-1.7976931348623157e+308 <= lower_limit).
+    @param upper_limit: Maximum possible value (upper_limit <= 1.7976931348623157e+308).
+    @param mode: Most likely value; must satisfy lower_limit <= mode <= upper_limit.
+    @return: A random float sampled from the triangular distribution.
+    """
+    return Fortuna.triangular(lower_limit, upper_limit, mode)
+
+
+@mcp.tool()
 def bernoulli_variate(ratio_of_truth: CanonicalFloat) -> bool:
     """
     Perform a Bernoulli trial returning a boolean outcome.
@@ -133,10 +166,7 @@ def binomial_variate(number_of_trials: PositiveInteger, probability: CanonicalFl
 
 
 @mcp.tool()
-def negative_binomial_variate(
-    number_of_trials: PositiveInteger,
-    probability: CanonicalFloat,
-) -> int:
+def negative_binomial_variate(number_of_trials: PositiveInteger, probability: CanonicalFloat) -> int:
     """
     Calculate the number of failures before achieving a target number of successes.
 
@@ -176,39 +206,6 @@ def poisson_variate(mean: PositiveFloat) -> int:
     @return: A random integer from the Poisson distribution.
     """
     return Fortuna.poisson_variate(mean)
-
-
-@mcp.tool()
-def random_float(lower_limit: Float, upper_bound: Float) -> float:
-    """
-    Produce a random float uniformly distributed within a specified interval.
-
-    Generates a random float in the half-open interval [lower_limit, upper_bound).
-    Both 'lower_limit' and 'upper_bound' must lie within the float bounds of
-    -1.7976931348623157e+308 to 1.7976931348623157e+308, and lower_limit must be strictly less than upper_bound.
-
-    @param lower_limit: Inclusive lower bound (-1.7976931348623157e+308 <= lower_limit < upper_bound).
-    @param upper_bound: Exclusive upper bound (lower_limit < upper_bound <= 1.7976931348623157e+308).
-    @return: A random float from the specified interval.
-    """
-    return Fortuna.random_float(lower_limit, upper_bound)
-
-
-@mcp.tool()
-def triangular(lower_limit: Float, upper_limit: Float, mode: Float) -> float:
-    """
-    Generate a random float from a triangular distribution.
-
-    The distribution is defined by a lower limit, an upper limit, and a mode.
-    All parameters must lie within the float bounds of -1.7976931348623157e+308 to 1.7976931348623157e+308,
-    and must satisfy lower_limit <= mode <= upper_limit.
-
-    @param lower_limit: Minimum possible value (-1.7976931348623157e+308 <= lower_limit).
-    @param upper_limit: Maximum possible value (upper_limit <= 1.7976931348623157e+308).
-    @param mode: Most likely value; must satisfy lower_limit <= mode <= upper_limit.
-    @return: A random float sampled from the triangular distribution.
-    """
-    return Fortuna.triangular(lower_limit, upper_limit, mode)
 
 
 @mcp.tool()

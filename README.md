@@ -12,7 +12,11 @@ FortunaMCP is perfectly suited for tasks like Monte Carlo simulations, complex s
 - **Host:** [Silicon Society](https://siliconsociety.org) – proudly hosting the FortunaMCP server and supporting its mission of delivering world-class random value generation for AI Agents. Silicon Society is building the future of learning, at scale. AI-powered job shadowing that brings learning to where work happens. Follow professionals in action with personalized guidance that adapts to your goals. Sign up for the [waitlist](https://docs.google.com/forms/d/e/1FAIpQLSdMjNkgbOpo-iG53cscOfBqu6CD2G-1J9ukkxYGkVL-7T1tPg/viewform?usp=header).
 
 ### Reference Deployment
-- FortunaMCP https://fortuna-mcp.siliconsociety.org/sse
+- FortunaMCP Lite https://fortuna-mcp.siliconsociety.org/sse
+- Tools
+  - Dice
+  - Random Range
+  - Random Float
 
 ## Tools Overview
 
@@ -29,6 +33,20 @@ FortunaMCP is perfectly suited for tasks like Monte Carlo simulations, complex s
 - **Example:**
   - **Trigger:** "Choose a number from 10 to 100 in steps of 5"
   - **Call:** `Fortuna.random_range(start=10, stop=100, step=5)`
+
+### Random Float
+- **Description:** Produces a uniformly distributed random float within the half-open interval `[lower_limit, upper_bound)`. Both bounds are within the float limits of -1.7976931348623157e+308 to 1.7976931348623157e+308.
+- **Use Cases:** Used in simulations, Monte Carlo methods, or any scenario requiring continuous uniform randomness.
+- **Example:**
+  - **Trigger:** "Generate a random float between 0.0 and 1.0"
+  - **Call:** `Fortuna.random_float(lower_limit=0.0, upper_bound=1.0)`
+
+### Triangular Variate
+- **Description:** Samples a random float from a triangular distribution defined by a lower limit, an upper limit, and a mode.
+- **Use Cases:** Excellent for project management estimates, risk analysis, or any scenario where outcomes are most likely around a central value.
+- **Example:**
+  - **Trigger:** "Simulate an outcome with a most likely value of 50, ranging from 10 to 100"
+  - **Call:** `Fortuna.triangular(lower_limit=10.0, upper_limit=100.0, mode=50.0)`
 
 ### Bernoulli Variate
 - **Description:** Executes a Bernoulli trial returning a boolean outcome based on the provided success probability.
@@ -64,20 +82,6 @@ FortunaMCP is perfectly suited for tasks like Monte Carlo simulations, complex s
 - **Example:**
   - **Trigger:** "Simulate the number of events in an interval with an average of 4 events"
   - **Call:** `Fortuna.poisson_variate(mean=4.0)`
-
-### Random Float
-- **Description:** Produces a uniformly distributed random float within the half-open interval `[lower_limit, upper_bound)`. Both bounds are within the float limits of -1.7976931348623157e+308 to 1.7976931348623157e+308.
-- **Use Cases:** Used in simulations, Monte Carlo methods, or any scenario requiring continuous uniform randomness.
-- **Example:**
-  - **Trigger:** "Generate a random float between 0.0 and 1.0"
-  - **Call:** `Fortuna.random_float(lower_limit=0.0, upper_bound=1.0)`
-
-### Triangular Variate
-- **Description:** Samples a random float from a triangular distribution defined by a lower limit, an upper limit, and a mode.
-- **Use Cases:** Excellent for project management estimates, risk analysis, or any scenario where outcomes are most likely around a central value.
-- **Example:**
-  - **Trigger:** "Simulate an outcome with a most likely value of 50, ranging from 10 to 100"
-  - **Call:** `Fortuna.triangular(lower_limit=10.0, upper_limit=100.0, mode=50.0)`
 
 ### Beta Variate
 - **Description:** Draws a random float from a beta distribution on the interval [0, 1] using two positive shape parameters.
@@ -160,7 +164,7 @@ FortunaMCP is perfectly suited for tasks like Monte Carlo simulations, complex s
 - **Description:** Draws a random float from a Fisher F distribution defined by two sets of degrees of freedom.
 - **Use Cases:** Applied in ANOVA testing, variance analysis, and comparing statistical models.
 - **Example:**
-  - **Trigger:** "Generate an F variate with degrees of freedom 5 and 10"
+  - **Trigger:** "Generate a Fisher F variate with degrees of freedom 5 and 10"
   - **Call:** `Fortuna.fisher_f_variate(degrees_of_freedom_1=5.0, degrees_of_freedom_2=10.0)`
 
 ### Student’s t Variate
