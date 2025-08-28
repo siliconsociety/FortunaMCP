@@ -11,7 +11,7 @@ from mcp.server.fastmcp import FastMCP
 from fastapi.responses import HTMLResponse, FileResponse
 from starlette.routing import Route
 
-version = "0.1.0"
+version = "0.1.1"
 mcp = FastMCP(
     "FortunaMCP",
     dependencies=["Fortuna"],
@@ -445,6 +445,10 @@ async def root(request):
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }}
+        .version {{
+            font-size: 0.8em;
+            float: right;
+        }}
         h1 {{ margin-top: 0; }}
         h1, h2, h3 {{ color: #2c3e50; }}
         h3 {{ margin-bottom: 0; }}
@@ -471,6 +475,7 @@ async def root(request):
 </head>
 <body>
     <main>
+        <span class="version">v{version}</span>
         {html_content}
     </main>
 </body>
