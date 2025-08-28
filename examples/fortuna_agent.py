@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 
 class FortunaAgent:
     load_dotenv()
-    mcp_url = "https://fortuna-mcp.siliconsociety.org/sse"
+    # mcp_url = "https://fortuna-mcp.siliconsociety.org/sse"
+    mcp_url = "http://localhost/sse"
     model = "gpt-4.1-nano"
 
     def __init__(self):
