@@ -11,7 +11,7 @@ from starlette.responses import HTMLResponse, FileResponse
 from starlette.routing import Route
 
 
-version = "0.1.2"
+version = "0.1.3"
 mcp = FastMCP(
     "FortunaMCP",
     dependencies=["Fortuna"],
