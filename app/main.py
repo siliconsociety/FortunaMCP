@@ -1,10 +1,14 @@
 import os
+from pathlib import Path
 
 from typing import Annotated, Literal, TypeAlias
 
 import Fortuna
+import markdown
 from pydantic import Field
 from mcp.server.fastmcp import FastMCP
+from starlette.responses import HTMLResponse, FileResponse
+from starlette.routing import Route
 
 
 version = "0.1.2"
@@ -414,6 +418,92 @@ def student_t_variate(degrees_of_freedom: PositiveFloat) -> float:
     return Fortuna.student_t_variate(degrees_of_freedom)
 
 
+async def root(request):
+    """Serve the README as HTML at the root path"""
+    readme = Path("README.md").read_text()
+    html_content = markdown.markdown(readme, extensions=['tables', 'fenced_code'])
+    #  🎲
+    html_response = f"""
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FortunaMCP Server</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+        main {{
+            background: white;
+            padding: 20px 30px 40px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+        .version {{
+            font-size: 0.8em;
+            float: right;
+        }}
+        h1 {{ margin-top: 0; }}
+        h1, h2, h3 {{ color: #2c3e50; }}
+        h3 {{ margin-bottom: 0; }}
+        ul {{ margin-top: 0; }}
+        code {{
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            color: #666;
+        }}
+        pre {{
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }}
+        a {{ color: #3498db; text-decoration: none; }}
+        a:hover {{ text-decoration: underline; }}
+        .badge {{
+            display: inline-block;
+            margin-bottom: 20px;
+        }}
+    </style>
+</head>
+<body>
+    <main>
+        <span class="version">v{version}</span>
+        {html_content}
+    </main>
+</body>
+</html>
+""".strip()
+    return HTMLResponse(content=html_response)
+
+
+async def favicon(request):
+    favicon_path = Path("static/favicon.ico")
+    return FileResponse(str(favicon_path))
+
+
 if __name__ == "__main__":
     print(f"Starting Fortuna MCP Server {version}")
+    _sse_app = mcp.sse_app
+
+
+    def sse_app(request):
+        app = _sse_app()
+        root_route = Route("/", root, methods=["GET"])
+        favicon_route = Route("/favicon.ico", favicon, methods=["GET"])
+        app.router.routes.insert(0, root_route)
+        app.router.routes.insert(1, favicon_route)
+        return app
+
+
+    mcp.sse_app = sse_app
     mcp.run(transport="sse")

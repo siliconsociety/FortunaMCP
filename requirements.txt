@@ -2,3 +2,5 @@ uvicorn[standard]
 Fortuna
 mcp[cli]
 pydantic
+markdown
+starlette
